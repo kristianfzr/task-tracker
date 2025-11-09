@@ -64,10 +64,14 @@ def add_task(filename, description):
     
     print(f"Task added : {task['description']}")
     
-def delete_task(filename, id):
+def delete_task(filename, id: int):
     with open(filename, 'r') as file:
-        data = json.load(file)
-    print(data)
+        tasks = json.load(file)
+        
+    tasks = [t for t in tasks if int(t["id"]) != int(id)]
+    
+    with open(filename, "w") as f:
+        json.dump(tasks, f, indent=4)    
        
 def main():
     command = sys.argv[1]
@@ -81,7 +85,7 @@ def main():
             
             add_task(filename, description)
         elif command == "delete":
-            delete_task(filename)
+            delete_task(filename, sys.argv[2])
             
 if __name__ == "__main__":
     main()
