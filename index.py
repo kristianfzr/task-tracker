@@ -5,7 +5,7 @@ import os
 
 filename = "tasks.json"
 
-def list_tasks(filename):
+def list_tasks(filename, status):
     try: 
         with open(filename, "r") as file:
             tasks = json.load(file)
@@ -20,9 +20,14 @@ def list_tasks(filename):
         
         print(f"{'ID':<{id_width}} {'Task':<{task_width}} {'Status':<{status_width}} ")
         print("-" * (id_width + task_width + status_width + 4))
+        
+        status = status.lower()
+        
+        tasks = [t for t in tasks if status == "" or t["status"].lower() == status]
 
         for task in tasks:
-            print(f"{task['id']:<{id_width}} {task['description']:<{task_width}} {task['status']:<{status_width}}")
+            if status in ("", "todo", "in-progress"):
+                print(f"{task['id']:<{id_width}} {task['description']:<{task_width}} {task['status']:<{status_width}}")
             
     except FileNotFoundError:
         print("Error: File not found.")
@@ -78,7 +83,8 @@ def main():
     
     if len(sys.argv) > 1:
         if command == "list":
-            list_tasks(filename)
+            arg = sys.argv[2] if len(sys.argv) > 2 else ""
+            list_tasks(filename, arg)
         elif command == "add":
             description_input = sys.argv[2:]
             description = (" ").join(description_input)
