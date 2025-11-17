@@ -44,6 +44,9 @@ Then reload your shell: `source ~/.zshrc`
 Once installed, you can use the following commands:
 
 ```bash
+# Add a new task
+task-tracker add "Your task description"
+
 # List all tasks
 task-tracker list
 
@@ -51,9 +54,6 @@ task-tracker list
 task-tracker list done
 task-tracker list todo
 task-tracker list in-progress
-
-# Add a new task
-task-tracker add "Your task description"
 
 # Update a task
 task-tracker update <id> "Updated description"
