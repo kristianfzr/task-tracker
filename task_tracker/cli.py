@@ -2,8 +2,12 @@ import sys
 from datetime import datetime
 import json
 import os
+from pathlib import Path
 
-filename = "tasks.json"
+TASKS_DIR = Path.home() / ".task-tracker"
+TASKS_DIR.mkdir(exist_ok=True)
+filename = TASKS_DIR / "tasks.json"
+VALID_STATUSES = ("todo", "in-progress", "done")
 
 def list_tasks(filename, status):
     try: 
@@ -26,7 +30,7 @@ def list_tasks(filename, status):
         tasks = [t for t in tasks if status == "" or t["status"].lower() == status]
 
         for task in tasks:
-            if status in ("", "todo", "in-progress"):
+            if status in ("", "todo", "in-progress", "done"):
                 print(f"{task['id']:<{id_width}} {task['description']:<{task_width}} {task['status']:<{status_width}}")
             
     except FileNotFoundError:
@@ -69,10 +73,40 @@ def add_task(filename, description):
     
     print(f"Task added : {task['description']}")
     
-def delete_task(filename, id: int):
+def update_task(filename, id: int, description):
     with open(filename, 'r') as file:
         tasks = json.load(file)
         
+    for task in tasks:
+        if int(task["id"] == int(id)):
+            task["description"] = description
+            task["updatedAt"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            break
+
+    with open(filename, "w") as f:
+        json.dump(tasks, f, indent=4)   
+
+def mark_task(filename, status, id: int):
+    status = status.lower()
+    if status not in VALID_STATUSES:
+        print(f"Error: Invalid status '{status}'. Valid statuses are: {', '.join(VALID_STATUSES)}")
+        return
+    with open(filename, 'r') as file:
+        tasks = json.load(file)
+        
+        for task in tasks:
+            if int(task["id"] == int(id)):
+                task["status"] = status
+                task["updatedAt"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                break
+            
+    with open(filename, "w") as f:
+        json.dump(tasks, f, indent=4) 
+
+def delete_task(filename, id: int):
+    with open(filename, 'r') as file:
+        tasks = json.load(file)
+    
     tasks = [t for t in tasks if int(t["id"]) != int(id)]
     
     with open(filename, "w") as f:
@@ -88,10 +122,18 @@ def main():
         elif command == "add":
             description_input = sys.argv[2:]
             description = (" ").join(description_input)
-            
             add_task(filename, description)
         elif command == "delete":
             delete_task(filename, sys.argv[2])
-            
+        elif command == "update":
+            description_input = sys.argv[3:]
+            description = (" ").join(description_input)
+            update_task(filename, sys.argv[2], description)
+        elif command == "mark-todo":
+            mark_task(filename, "todo", sys.argv[2])
+        elif command == "mark-in-progress":
+            mark_task(filename, "in-progress", sys.argv[2])
+        elif command == "mark-done":
+            mark_task(filename, "done", sys.argv[2])
 if __name__ == "__main__":
     main()
