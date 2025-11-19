@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setup(
     name="task-tracker-cli",
     version="1.0.0",
-    author="Your Name",
+    author="Kristian Kanchev",
     description="A CLI task tracker",
     long_description=long_description,
     long_description_content_type="text/markdown",
